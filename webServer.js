@@ -260,7 +260,31 @@ app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
   
   // const updatedComments = await Photo.findById(photoId.slice(1),{comments: 1});
   
-    res.status(200).json(resNewComment);
+  res.status(200).json(resNewComment);
+
+});
+
+app.post('/mentionsOfPhoto/', async (req, res) => {
+
+  if (!req.session.user) {
+    res.status(400).send("Not Logged In");
+    return;
+  }
+
+  console.log("This is the recieved data from mentionsOfPhoto:POST");
+
+  const mentionedUsers = req.body.user_ids;
+  console.log("Logged in user",req.session.user);
+  const mentionedBy = req.session.user.user_id;
+
+  mentionedUsers.forEach(async function(user){
+    console.log(user);
+    await User.updateOne(
+      {_id:user},
+      { $push: { mentions : mentionedBy } });
+  });
+
+  res.status(200).send("Successfully Added Mentions");
 
 });
 
@@ -336,7 +360,7 @@ app.get("/user/:id", async (request, response) => {
 
   const id = request.params.id;
   try {
-    const user = await User.findById(id, '_id first_name last_name location description occupation');
+    const user = await User.findById(id, '_id first_name last_name location description occupation mentions');
     if (!user) {
       response.status(400).send("User not found");
       return;

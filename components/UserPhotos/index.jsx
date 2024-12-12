@@ -44,6 +44,22 @@ function formatDateTime(dateString) {
   return `${day} ${monthName} ${year}, ${time}`;
 }
 
+function extractMentions(comment) {
+  // Regular expression to match the template @[display](id)
+  const mentionRegex = /@\[[^\]]+\]\(([^)]+)\)/g;
+
+  // Array to store the extracted IDs
+  const ids = [];
+
+  // Replace function to modify the string and collect IDs
+  const modifiedComment = comment.replace(mentionRegex, (match, id) => {
+    ids.push(id); // Collect the ID
+    return match.split('(')[0]; // Remove the `(id)` part
+  });
+
+  return [modifiedComment, ids];
+}
+
 
 
 function AddComment({handleSetComments,photoId}) {
@@ -61,16 +77,27 @@ function AddComment({handleSetComments,photoId}) {
     console.log('Comment:', comment); // Logs the comment to the console
     setComment(''); // Clears the input after clicking
     const timestamp = new Date();
+    
+    let [processedComment,mentionedIds] = extractMentions(comment);
 
     const response = await fetch('/commentsOfPhoto/:'+photoId, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ comment, timestamp }),
+      body: JSON.stringify({ comment:processedComment, timestamp:timestamp }),
     });
 
-    if (response.ok) {
+    
+    const mention_reponse = await fetch('/mentionsOfPhoto/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({user_ids: mentionedIds})
+    });
+
+    if (response.ok && mention_reponse.ok) {
       console.log("added comment successfully");
       const updatedCommentsJSON = await response.json();
       handleSetComments(updatedCommentsJSON);
@@ -110,7 +137,11 @@ function AddComment({handleSetComments,photoId}) {
         onChange={handleInputChange}
       /> */}
       <MentionsInput value={comment} onChange={handleInputChange} placeholder='Add a comment...'>
-        <Mention trigger="@" data={userList}/>
+        <Mention
+          trigger="@"
+          data={userList}
+          // markup='@[__display__]'
+        />
       </MentionsInput>
       <button onClick={handleButtonClick}>Comment</button>
     </div>

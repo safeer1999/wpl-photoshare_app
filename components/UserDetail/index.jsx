@@ -15,6 +15,42 @@ import PropTypes from 'prop-types';
 import UserLoggedIn from '../../photoShare';
 import "./styles.css";
 
+function Mentions({ userIds }) {
+  const [users, setUsers] = useState([]);
+
+  // Fetch the user list when the component mounts
+  useEffect(() => {
+    axios
+      .get('/user/list')
+      .then((response) => {
+        const allUsers = response.data;
+        // Filter users based on the input userIds
+        const filteredUsers = allUsers.filter((user) => userIds.includes(user._id));
+        setUsers(filteredUsers);
+      })
+      .catch((err) => {
+        console.error('Error fetching users:', err);
+      });
+  }, [userIds]);
+
+  return (
+    <div>
+      <h2>User List</h2>
+      <ul>
+        {users.map((user) => (
+          <li key={user._id}>
+            <Link href={`#/users/:${user._id}`}>
+              {user.first_name} {user.last_name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+
+
 function UserDetail({userId}) {
   const [currentUser, ] = useContext(UserLoggedIn);
   const [user, setUser] = useState({});
@@ -55,6 +91,8 @@ function UserDetail({userId}) {
           <Typography variant="body1">
           Occupation: {user.occupation}
           </Typography>
+
+          <Mentions userIds={user.mentions} />
       </div>
       <Divider />
       <br />
