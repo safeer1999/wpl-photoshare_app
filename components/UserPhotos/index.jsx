@@ -12,6 +12,7 @@ Divider,
 Link,
 Paper, 
 Checkbox} from "@mui/material";
+import { MentionsInput, Mention } from 'react-mentions';
 
 import UserLoggedIn from '../../photoShare';
 import MentionComment from './mention_comments';
@@ -48,6 +49,7 @@ function formatDateTime(dateString) {
 function AddComment({handleSetComments,photoId}) {
   // State to hold the input value
   const [comment, setComment] = useState('');
+  const [userList, setUserList] = useState([]);
 
   // Handle input change
   const handleInputChange = (event) => {
@@ -81,19 +83,35 @@ function AddComment({handleSetComments,photoId}) {
       alert(error_message);
     }
 
-
-
-
   };
+
+  useEffect( () => {
+    axios.get("/user/list")
+    .then((res) => {
+      console.log(" User lists fetched from server\n", res.data);
+      setUserList(res.data.map((x) => {
+        return {
+          id: x._id,
+          display: x.first_name + ' ' + x.last_name,
+        }
+      }));
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }, []);
 
   return (
     <div>
-      <input
+      {/* <input
         type="text"
         placeholder="Add a comment..."
         value={comment}
         onChange={handleInputChange}
-      />
+      /> */}
+      <MentionsInput value={comment} onChange={handleInputChange} placeholder='Add a comment...'>
+        <Mention trigger="@" data={userList}/>
+      </MentionsInput>
       <button onClick={handleButtonClick}>Comment</button>
     </div>
   );
