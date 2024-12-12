@@ -1,0 +1,20 @@
+.topbar-appBar{
+  height: 60;
+  justify-content: "center";
+}
+
+.toolbar {
+  justify-content: space-between;
+  display: inline;
+  flex-direction: row;
+
+}
+
+.topbar-details {
+  padding-right: 30px;
+}
+
+.topbar-rightpane {
+  display: inline-flex;
+  align-items: center;
+}

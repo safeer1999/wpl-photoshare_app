@@ -1,0 +1,28 @@
+.photo-container {
+    display: flex;
+    flex-direction: row;
+    align-content: start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-inline: 20px;
+    position: relative;
+}
+
+.favourites {
+    position: absolute;
+    top:0;
+    right: 0;
+}
+
+.text-align-right {
+    text-align: right;
+}
+
+.comment-container {
+    width: 500px;
+}
+
+.no-comments {
+    align-content: center;
+    justify-content: center;
+}
