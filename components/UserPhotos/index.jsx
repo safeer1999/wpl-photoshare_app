@@ -94,7 +94,7 @@ function AddComment({handleSetComments,photoId}) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({user_ids: mentionedIds})
+      body: JSON.stringify({photo_id: photoId,user_ids: mentionedIds})
     });
 
     if (response.ok && mention_reponse.ok) {
@@ -248,7 +248,7 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   return (
     <div className="photo-disp">
-      {photos.map((photo) => <PhotoDescription key={photo._id} photo={photo} />)}
+      {photos.map((photo) => <PhotoDescription id={photo._id} key={photo._id} photo={photo} />)}
     </div>
   );
 }

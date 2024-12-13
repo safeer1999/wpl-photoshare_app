@@ -275,13 +275,13 @@ app.post('/mentionsOfPhoto/', async (req, res) => {
 
   const mentionedUsers = req.body.user_ids;
   console.log("Logged in user",req.session.user);
-  const mentionedBy = req.session.user.user_id;
+  const mentionedOn = req.body.photo_id;
 
   mentionedUsers.forEach(async function(user){
     console.log(user);
     await User.updateOne(
       {_id:user},
-      { $push: { mentions : mentionedBy } });
+      { $push: { mentions : mentionedOn } });
   });
 
   res.status(200).send("Successfully Added Mentions");
@@ -418,6 +418,34 @@ app.get("/photosOfUser/:id", async function (request, response) {
   catch(error) {
     console.error("Error fetching photos for user:", error);
     response.status(400).send("Invalid user ID format");
+  }
+});
+
+app.get("/photos", async (req, res) => {
+  
+  if (!req.session.user) {
+    res.status(401).send("Not Logged In");
+    return;
+  }
+
+  try {
+    // Get the list of photo IDs from the request body
+    const photoIds = req.query.photoIds;
+
+  if (!photoIds || photoIds.length === 0) {
+    return res.status(400).json({ message: "Invalid photoIds array in query parameters." });
+  }
+
+    // Convert string IDs to ObjectIds
+    const objectIds = photoIds.map((id) => new mongoose.Types.ObjectId(id));
+
+    // Fetch matching photos from the database excluding 'comments'
+    const photos = await Photo.find({ _id: { $in: objectIds } }).select("-comments");
+
+    res.status(200).json(photos);
+  } catch (error) {
+    console.error("Error fetching photos:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
