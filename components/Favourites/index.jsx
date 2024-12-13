@@ -1,11 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Modal, Box, Button, Typography } from '@mui/material';
+import axios from 'axios';
+
+import UserLoggedIn from '../../photoShare';
 import './styles.css';
 
+function formatDateTime(dateString) {
+  // Parse the date string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (Number.isNaN(date)) {
+    return "Invalid date";
+  }
+
+  // Get day, month name, and year
+  const day = date.getDate();
+  const monthName = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+
+  // Format time as HH:MM (24-hour format)
+  const time = date.toLocaleTimeString('default', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  // Combine into desired format
+  return `${day} ${monthName} ${year}, ${time}`;
+}
+
+
 const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
+  const [currentUser, ] = useContext(UserLoggedIn);
+
   const [open, setOpen] = useState(false);
-  const [selectedButton, setSelectedButton] = useState(null);
+  const [selectedPhoto, setSelectedPhoto] = useState({});
   const [photos, setPhotos] = useState([]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (Object.keys(currentUser).length==0) {
+      navigate("/");
+    }
+  }, [currentUser]);
 
   useEffect( () => {
     axios.get("/favoritePhotos/")
@@ -19,8 +58,8 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
     });
   }, [fetchPhoto]);
   
-  const handleOpen = (buttonIndex) => {
-    setSelectedButton(buttonIndex);
+  const handleOpen = (photo) => {
+    setSelectedPhoto(photo);
     setOpen(true);
   };
 
@@ -34,17 +73,15 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
       <Typography variant="h5" gutterBottom>
         Favourite Photos
       </Typography>
-      <div className="thumbnail-container">
-        {[1, 2, 3, 4].map((num) => (
-          <Button
-            key={num}
-            variant="contained"
-            color="primary"
-            className="favourite-button"
-            onClick={() => handleOpen(num)}
-          >
-            Photo {num}
-          </Button>
+      <div className="thumbnail-list">
+        {photos.map((photo) => (
+          <div className='thumbnail-container'>
+            <img
+            src={`/images/${photo.file_name}`}
+            alt="Mentioned"
+            onClick={() => handleOpen(photo)}
+            />
+          </div>
         ))}
       </div>
 
@@ -56,12 +93,17 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
         aria-describedby="modal-description"
       >
         <Box className="modal-box">
-          <Typography id="modal-title" variant="h6" component="h2">
-            Favourite Photo {selectedButton}
-          </Typography>
-          <Typography id="modal-description" sx={{ mt: 2 }}>
-            Details about Favourite Photo {selectedButton}.
-          </Typography>
+          <div>
+            <img
+                key={selectedPhoto._id}
+                src={"../images/"+selectedPhoto.file_name}
+                alt={"photo of "+selectedPhoto.user_id}
+                height={250}
+                width={300}/>
+            <Typography variant="body1">
+                Uploaded on {formatDateTime(selectedPhoto.date_time)}
+            </Typography>
+          </div>
         </Box>
       </Modal>
     </div>

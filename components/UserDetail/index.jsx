@@ -71,7 +71,16 @@ function UserDetail({userId}) {
           className="switch-to-photos-link" >
             Switch to Photos
         </Link>
-
+      </div>
+      <div>
+      <Link 
+          href="#/favourites/"
+          variant='body1'
+          underline="none"
+          color="inherit"
+          className="switch-to-photos-link" >
+            Switch to Favorites
+        </Link>
       </div>
     </>
   );
