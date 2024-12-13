@@ -12,9 +12,11 @@
   }
   
   /* Buttons container */
-  .buttons-container {
+  .thumbnail-container {
     margin: 10px 0;
   }
+
+
   
   /* Individual buttons */
   .favourite-button {

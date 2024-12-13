@@ -165,6 +165,10 @@
  * discarded.
  */
 
+function biasedRandom() {
+  return Math.random() < 0.4 ? 1 : 0;
+}
+
 // We use Mongoose to define the schema stored in MongoDB.
 import mongoose from "mongoose";
 import bluebird from "bluebird";
@@ -246,6 +250,7 @@ Promise.all(removePromises)
           file_name: photo.file_name,
           date_time: photo.date_time,
           user_id: mapFakeId2RealId[photo.user_id],
+          favorite: biasedRandom(),
         })
           .then(function (photoObj) {
             photo.objectID = photoObj._id;

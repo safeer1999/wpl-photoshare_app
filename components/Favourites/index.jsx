@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Box, Button, Typography } from '@mui/material';
 import './styles.css';
 
-const FavouritePhotos = () => {
+const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
   const [open, setOpen] = useState(false);
   const [selectedButton, setSelectedButton] = useState(null);
+  const [photos, setPhotos] = useState([]);
 
+  useEffect( () => {
+    axios.get("/favoritePhotos/")
+    .then((res) => {
+      console.log(`Favorite photos of fetched from server\n`, res.data);
+      setPhotos(res.data);
+      handleSetFetchPhoto(false);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }, [fetchPhoto]);
+  
   const handleOpen = (buttonIndex) => {
     setSelectedButton(buttonIndex);
     setOpen(true);
@@ -21,7 +34,7 @@ const FavouritePhotos = () => {
       <Typography variant="h5" gutterBottom>
         Favourite Photos
       </Typography>
-      <div className="buttons-container">
+      <div className="thumbnail-container">
         {[1, 2, 3, 4].map((num) => (
           <Button
             key={num}

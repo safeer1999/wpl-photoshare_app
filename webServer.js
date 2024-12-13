@@ -421,6 +421,39 @@ app.get("/photosOfUser/:id", async function (request, response) {
   }
 });
 
+app.get("/favoritePhotos/", async function (request, response) {
+
+  if (!request.session.user) {
+    response.status(401).send("Not Logged In");
+    return;
+  }
+
+  try {
+    const photos = await Photo.find({user_id: request.session.user.user_id,favorite:1})
+    .select('_id user_id file_name date_time');
+
+    if (photos.length === 0) {
+      console.log("Photos for logged in user not found.");
+      response.status(400).send("Not found");
+      return;
+    }
+
+    var photosWithUsers = photos.map(photo => ({
+      _id: photo._id,
+      user_id: photo.user_id,
+      file_name: photo.file_name,
+      date_time: photo.date_time,
+    }));
+
+
+    response.status(200).send(photosWithUsers);
+  }
+  catch(error) {
+    console.error("Error fetching photos for user:", error);
+    response.status(400).send("Invalid user ID format");
+  }
+});
+
 app.get("/photos", async (req, res) => {
   
   if (!req.session.user) {
