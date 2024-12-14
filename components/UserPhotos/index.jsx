@@ -12,6 +12,7 @@ Divider,
 Link,
 Paper, 
 Checkbox} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import { MentionsInput, Mention } from 'react-mentions';
 
 import UserLoggedIn from '../../photoShare';
@@ -117,11 +118,45 @@ function AddComment({handleSetComments,photoId}) {
   );
 }
 
-function Comment({ comment }) {
+function Comment({ comment, photoId, handleCommentDelete }) {
 
   if (comment===null) {
     return "";
   }
+
+  const handleDeleteClick = async () => {
+
+    try {
+
+      const response = await fetch(`/comments/${comment._id}`, {
+
+        method: "DELETE",
+
+      });
+
+
+
+      if (response.ok) {
+
+        handleCommentDelete(comment._id);
+
+        console.log("Comment deleted successfully");
+
+      } else {
+
+        const error_message = await response.text();
+
+        alert(`Failed to delete comment: ${error_message}`);
+
+      }
+
+    } catch (error) {
+
+      console.error("Error deleting comment:", error);
+
+    }
+
+  };
 
   return (
     <>
@@ -133,6 +168,7 @@ function Comment({ comment }) {
             &nbsp;commented on&nbsp;
             {formatDateTime(comment.date_time)}
           </p>
+          <button className="delete-button delete-comment-button" onClick={handleDeleteClick}><DeleteIcon /></button>
         </div>
 
       </ListItem>
@@ -141,7 +177,7 @@ function Comment({ comment }) {
   );
 }
 
-function PhotoDescription({photo}) {
+function PhotoDescription({photo, handlePhotoDelete}) {
 
   // const comments = photo.comments;
   const [comments, setComments] = useState(photo.comments);
@@ -150,18 +186,83 @@ function PhotoDescription({photo}) {
     setComments(comments.concat([data]));
   }
 
-  function checkEmptyComments() {
-    if (comments.length>0) {
-      return comments.map((comment) => <Comment key={comment._id} comment={comment} />);
+  const handleCommentDelete = (commentId) => {
+
+    setComments(comments.filter((comment) => comment._id !== commentId));
+
+  };
+
+
+
+  const handleDeletePhoto = async () => {
+
+    try {
+
+      const response = await fetch(`/photos/${photo._id}`, {
+
+        method: "DELETE",
+
+      });
+
+
+
+      if (response.ok) {
+
+        handlePhotoDelete(photo._id);
+
+        console.log("Photo deleted successfully");
+
+      } else {
+
+        const error_message = await response.text();
+
+        alert(`Failed to delete photo: ${error_message}`);
+
+      }
+
+    } catch (error) {
+
+      console.error("Error deleting photo:", error);
+
     }
-    else {
+
+  };
+
+  const checkEmptyComments = () => {
+
+    if (comments.length > 0) {
+
+      return comments.map((comment) => (
+
+        <Comment
+
+          key={comment._id}
+
+          comment={comment}
+
+          photoId={photo._id}
+
+          handleCommentDelete={handleCommentDelete}
+
+        />
+
+      ));
+
+    } else {
+
       return (
-          <Typography className="no-comments" variant="h5">
-            No comments
-          </Typography>
+
+        <Typography className="no-comments" variant="h5">
+
+          No comments
+
+        </Typography>
+
       );
+
     }
-  }
+
+  };
 
 
   return (
@@ -176,6 +277,7 @@ function PhotoDescription({photo}) {
         <Typography variant="body1">
             Uploaded on {formatDateTime(photo.date_time)}
         </Typography>
+        <button className="delete-button delete-photo-button" onClick={handleDeletePhoto}><DeleteIcon /></button>
       </div>
       <div className="photo-details">
         <List>
@@ -215,9 +317,19 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
     });
   }, [userId, fetchPhoto]);
 
+  const handlePhotoDelete = (photoId) => {
+
+    setPhotos(photos.filter((photo) => photo._id !== photoId));
+
+  };
+
   return (
     <div className="photo-disp">
-      {photos.map((photo) => <PhotoDescription key={photo._id} photo={photo} />)}
+      {photos.map((photo) => 
+        <PhotoDescription 
+          key={photo._id} 
+          photo={photo} 
+          handlePhotoDelete={handlePhotoDelete}/>)}
     </div>
   );
 }
