@@ -34,7 +34,6 @@ function UserDetail({userId}) {
     .then((res) => {
       console.log(`User details of ${userId} fetched from server\n`, res.data);
       setUser(res.data);
-      console.log("why are the ids not matching?",userId, currentUser._id);
       if (userId.slice(1) === currentUser._id) {
         setFavoritesButton(
           <div>

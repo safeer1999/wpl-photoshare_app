@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Modal, Box, Button, Typography } from '@mui/material';
+import { Modal, Box, Button, Typography, IconButton } from '@mui/material';
+// import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
 import UserLoggedIn from '../../photoShare';
@@ -65,8 +67,28 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
 
   const handleClose = () => {
     setOpen(false);
-    setSelectedButton(null);
+    setSelectedPhoto({});
   };
+
+  async function removeFavorites(photo_id) {
+    try {
+      const response = await axios.post(`/photoFavorites/${photo_id}`,{
+        favorite: 0
+      });
+      console.log(`Photo ${photo_id} removed from favorites:`, response.data);
+    } catch (error) {
+      console.error(`Error while removing photo ${photo_id} from favorite:`, error);
+    }
+
+    axios.get("/favoritePhotos/")
+    .then((res) => {
+      console.log(`Favorite photos of fetched from server\n`, res.data);
+      setPhotos(res.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
 
   return (
     <div>
@@ -81,6 +103,9 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
             alt="Mentioned"
             onClick={() => handleOpen(photo)}
             />
+            <IconButton className='favorite-delete-button' onClick={() => removeFavorites(photo._id)}>
+              <DeleteIcon />
+            </IconButton>
           </div>
         ))}
       </div>

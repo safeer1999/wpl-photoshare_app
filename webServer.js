@@ -288,6 +288,39 @@ app.post('/mentionsOfPhoto/', async (req, res) => {
 
 });
 
+app.post("/photoFavorites/:photo_id", async (req, res) => {
+  const { photo_id } = req.params;
+  const { favorite } = req.body; // Retrieve the 'favorite' value from the request body
+
+  if (!req.session.user) {
+    res.status(400).send("Not Logged In");
+    return;
+  }
+
+  if (typeof favorite !== "number" || (favorite !== 0 && favorite !== 1)) {
+    return res.status(400).json({ message: "Invalid favorite value. Must be 0 or 1." });
+  }
+
+  try {
+    // Find the photo by ID and update its 'favorite' attribute
+    const photo = await Photo.findByIdAndUpdate(
+      photo_id,
+      { favorite },
+      { new: true } // Return the updated document
+    );
+
+    if (!photo) {
+      return res.status(404).json({ message: "Photo not found." });
+    }
+
+    res.status(200).json({ message: "Photo favorite status updated.", photo });
+  } catch (error) {
+    console.error("Error updating photo:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 app.post('/user', async (req, res) => {
   try {
       const { first_name, last_name, location, description, occupation, login_name, password } = req.body;
@@ -386,7 +419,7 @@ app.get("/photosOfUser/:id", async function (request, response) {
   // const photos = models.photoOfUserModel(id);
   try {
     const photos = await Photo.find({user_id: id})
-    .select('_id user_id comments file_name date_time')
+    .select('_id user_id comments file_name date_time favorite')
     .populate({
       path: 'comments.user_id',
       select: '_id first_name last_name',
@@ -404,6 +437,7 @@ app.get("/photosOfUser/:id", async function (request, response) {
       user_id: photo.user_id,
       file_name: photo.file_name,
       date_time: photo.date_time,
+      favorite: photo.favorite,
       comments: photo.comments.map(comment => ({
         comment: comment.comment,
         date_time: comment.date_time,
@@ -434,7 +468,7 @@ app.get("/favoritePhotos/", async function (request, response) {
 
     if (photos.length === 0) {
       console.log("Photos for logged in user not found.");
-      response.status(400).send("Not found");
+      response.status(200).send([]);
       return;
     }
 

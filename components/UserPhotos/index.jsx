@@ -11,7 +11,11 @@ ListItem,
 Divider,
 Link,
 Paper, 
-Checkbox} from "@mui/material";
+Checkbox,
+FormControlLabel,
+} from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { MentionsInput, Mention } from 'react-mentions';
 
 import UserLoggedIn from '../../photoShare';
@@ -172,10 +176,53 @@ function Comment({ comment }) {
   );
 }
 
-function PhotoDescription({photo}) {
+function PhotoDescription({photo, checkLoggedIn}) {
 
   // const comments = photo.comments;
   const [comments, setComments] = useState(photo.comments);
+  const [markFavorite, setMarkFavorite] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(photo.favorite === 1);
+
+  async function handleFavoriteToggle() {
+    if (isFavorite) {return;}
+    
+    setIsFavorite(true);
+      try {
+        const response = await axios.post(`/photoFavorites/${photo._id}`,{
+          favorite: 1
+        });
+        console.log('Photo marked as favorite:', response.data);
+      } catch (error) {
+        console.error('Error marking photo as favorite:', error);
+      }
+  };
+
+  useEffect(() => {
+
+    console.log("This is inside favorite button",isFavorite)
+    
+    if (checkLoggedIn) {
+      setMarkFavorite(
+        <div>
+          {/* <FormControlLabel
+            control={
+              <Checkbox
+                checked={isFavorite}
+                onChange={handleFavoriteToggle}
+                color="primary"
+              />
+            }
+          /> */}
+          <IconButton onClick={handleFavoriteToggle} >
+            <FavoriteIcon color={isFavorite ? "error" : "primary"} />
+          </IconButton>
+        </div>
+      )
+    }
+    else {
+      setMarkFavorite(null);
+    }
+  }, [checkLoggedIn,isFavorite]);
 
   function handleSetComments(data) {
     setComments(comments.concat([data]));
@@ -214,9 +261,7 @@ function PhotoDescription({photo}) {
         </List>
         <AddComment handleSetComments={handleSetComments} photoId={photo._id} />
       </div>
-      <div>
-        <Checkbox />
-      </div>
+      {markFavorite}
     </Paper>
   );
 }
@@ -225,6 +270,7 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   const [currentUser, ] = useContext(UserLoggedIn);
   const [photos, setPhotos] = useState([]);
+  const [checkLoggedIn, setCheckLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -233,6 +279,10 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
       navigate("/");
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    setCheckLoggedIn(userId.slice(1) === currentUser._id);
+  }, [userId]);
 
   useEffect( () => {
     axios.get("/photosOfUser/"+userId.slice(1))
@@ -248,7 +298,7 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   return (
     <div className="photo-disp">
-      {photos.map((photo) => <PhotoDescription id={photo._id} key={photo._id} photo={photo} />)}
+      {photos.map((photo) => <PhotoDescription id={photo._id} key={photo._id} photo={photo} checkLoggedIn={checkLoggedIn} />)}
     </div>
   );
 }
