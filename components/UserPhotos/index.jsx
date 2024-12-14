@@ -406,11 +406,16 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   return (
     <div className="photo-disp">
-      {photos.map((photo) => 
-        <PhotoDescription id={photo._id} 
+      {photos.map((photo) => {
+        
+        return (
+        <PhotoDescription
+          id={photo._id} 
           key={photo._id} 
           photo={photo} checkLoggedIn={checkLoggedIn} 
-          handlePhotoDelete={handlePhotoDelete}/>)}
+          handlePhotoDelete={handlePhotoDelete}/>);
+        })
+      }
     </div>
   );
 }
