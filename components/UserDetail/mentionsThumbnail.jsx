@@ -80,8 +80,9 @@ function MentionsThumbnails({ photoIds }) {
         photos.map((photo) => (
           <div key={photo._id} className="mention-thumbnail">
             <Typography>
-            <UserLink userId={photo.user_id} />
-              {' '}mentioned you at:{' '}
+              You were mentioned at:{' '}
+              <UserLink userId={photo.user_id} />
+              &apos;s photo:{' '}
               <Link className='image-link' to={`/photos/:${photo.user_id}#${photo._id}`}>
                   <img
                   src={`/images/${photo.file_name}`}
