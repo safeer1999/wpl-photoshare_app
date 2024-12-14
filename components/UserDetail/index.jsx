@@ -14,10 +14,13 @@ import PropTypes from 'prop-types';
 
 import UserLoggedIn from '../../photoShare';
 import "./styles.css";
+import MentionsThumbnails from './mentionsThumbnail';
+
 
 function UserDetail({userId}) {
   const [currentUser, ] = useContext(UserLoggedIn);
   const [user, setUser] = useState({});
+  const [favoritesButton, setFavoritesButton] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +34,23 @@ function UserDetail({userId}) {
     .then((res) => {
       console.log(`User details of ${userId} fetched from server\n`, res.data);
       setUser(res.data);
+      if (userId.slice(1) === currentUser._id) {
+        setFavoritesButton(
+          <div>
+            <Link 
+              href="#/favourites/"
+              variant='body1'
+              underline="none"
+              color="inherit"
+              className="switch-to-photos-link" >
+                Switch to Favorites
+            </Link>
+          </div>
+        );
+      }
+      else {
+        setFavoritesButton(null);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -55,6 +75,8 @@ function UserDetail({userId}) {
           <Typography variant="body1">
           Occupation: {user.occupation}
           </Typography>
+
+          <MentionsThumbnails photoIds={user.mentions} />
       </div>
       <Divider />
       <br />
@@ -67,8 +89,8 @@ function UserDetail({userId}) {
           className="switch-to-photos-link" >
             Switch to Photos
         </Link>
-
       </div>
+      {favoritesButton}
     </>
   );
 }

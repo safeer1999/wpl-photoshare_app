@@ -11,7 +11,11 @@ ListItem,
 Divider,
 Link,
 Paper, 
-Checkbox} from "@mui/material";
+Checkbox,
+FormControlLabel,
+} from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { MentionsInput, Mention } from 'react-mentions';
 
@@ -45,6 +49,22 @@ function formatDateTime(dateString) {
   return `${day} ${monthName} ${year}, ${time}`;
 }
 
+function extractMentions(comment) {
+  // Regular expression to match the template @[display](id)
+  const mentionRegex = /@\[[^\]]+\]\(([^)]+)\)/g;
+
+  // Array to store the extracted IDs
+  const ids = [];
+
+  // Replace function to modify the string and collect IDs
+  const modifiedComment = comment.replace(mentionRegex, (match, id) => {
+    ids.push(id); // Collect the ID
+    return match.split('(')[0]; // Remove the `(id)` part
+  });
+
+  return [modifiedComment, ids];
+}
+
 
 
 function AddComment({handleSetComments,photoId}) {
@@ -62,16 +82,27 @@ function AddComment({handleSetComments,photoId}) {
     console.log('Comment:', comment); // Logs the comment to the console
     setComment(''); // Clears the input after clicking
     const timestamp = new Date();
+    
+    let [processedComment,mentionedIds] = extractMentions(comment);
 
     const response = await fetch('/commentsOfPhoto/:'+photoId, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ comment, timestamp }),
+      body: JSON.stringify({ comment:processedComment, timestamp:timestamp }),
     });
 
-    if (response.ok) {
+    
+    const mention_reponse = await fetch('/mentionsOfPhoto/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({photo_id: photoId,user_ids: mentionedIds})
+    });
+
+    if (response.ok && mention_reponse.ok) {
       console.log("added comment successfully");
       const updatedCommentsJSON = await response.json();
       handleSetComments(updatedCommentsJSON);
@@ -111,7 +142,11 @@ function AddComment({handleSetComments,photoId}) {
         onChange={handleInputChange}
       /> */}
       <MentionsInput value={comment} onChange={handleInputChange} placeholder='Add a comment...'>
-        <Mention trigger="@" data={userList}/>
+        <Mention
+          trigger="@"
+          data={userList}
+          // markup='@[__display__]'
+        />
       </MentionsInput>
       <button onClick={handleButtonClick}>Comment</button>
     </div>
@@ -181,13 +216,56 @@ function Comment({ comment, photoId, handleCommentDelete }) {
   );
 }
 
-function PhotoDescription({photo, handlePhotoDelete}) {
+function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
 
 
   const [currentUser] = useContext(UserLoggedIn); 
 
   // const comments = photo.comments;
   const [comments, setComments] = useState(photo.comments);
+  const [markFavorite, setMarkFavorite] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(photo.favorite === 1);
+
+  async function handleFavoriteToggle() {
+    if (isFavorite) {return;}
+    
+    setIsFavorite(true);
+      try {
+        const response = await axios.post(`/photoFavorites/${photo._id}`,{
+          favorite: 1
+        });
+        console.log('Photo marked as favorite:', response.data);
+      } catch (error) {
+        console.error('Error marking photo as favorite:', error);
+      }
+  };
+
+  useEffect(() => {
+
+    console.log("This is inside favorite button",isFavorite)
+    
+    if (checkLoggedIn) {
+      setMarkFavorite(
+        <div>
+          {/* <FormControlLabel
+            control={
+              <Checkbox
+                checked={isFavorite}
+                onChange={handleFavoriteToggle}
+                color="primary"
+              />
+            }
+          /> */}
+          <IconButton onClick={handleFavoriteToggle} >
+            <FavoriteIcon color={isFavorite ? "error" : "primary"} />
+          </IconButton>
+        </div>
+      )
+    }
+    else {
+      setMarkFavorite(null);
+    }
+  }, [checkLoggedIn,isFavorite]);
 
   function handleSetComments(data) {
     setComments(comments.concat([data]));
@@ -294,9 +372,7 @@ function PhotoDescription({photo, handlePhotoDelete}) {
         </List>
         <AddComment handleSetComments={handleSetComments} photoId={photo._id} />
       </div>
-      <div>
-        <Checkbox />
-      </div>
+      {markFavorite}
     </Paper>
   );
 }
@@ -305,6 +381,7 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   const [currentUser, ] = useContext(UserLoggedIn);
   const [photos, setPhotos] = useState([]);
+  const [checkLoggedIn, setCheckLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -313,6 +390,10 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
       navigate("/");
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    setCheckLoggedIn(userId.slice(1) === currentUser._id);
+  }, [userId]);
 
   useEffect( () => {
     axios.get("/photosOfUser/"+userId.slice(1))
@@ -334,11 +415,16 @@ function UserPhotos({userId, fetchPhoto,handleSetFetchPhoto}) {
 
   return (
     <div className="photo-disp">
-      {photos.map((photo) => 
-        <PhotoDescription 
+      {photos.map((photo) => {
+        
+        return (
+        <PhotoDescription
+          id={photo._id} 
           key={photo._id} 
-          photo={photo} 
-          handlePhotoDelete={handlePhotoDelete}/>)}
+          photo={photo} checkLoggedIn={checkLoggedIn} 
+          handlePhotoDelete={handlePhotoDelete}/>);
+        })
+      }
     </div>
   );
 }

@@ -1,3 +1,27 @@
 .switch-to-photos-link:hover {
     background-color: rgb(205, 200, 195);
 }
+
+/* Container for the thumbnails */
+.mentions-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  /* Styling for individual thumbnail containers */
+  .mention-thumbnail {
+    margin: 5px;
+  }
+  
+  /* Styling for images */
+  .mention-thumbnail img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+  }
+  
+  /* Error message styling */
+  .error-message {
+    color: red;
+  }
+  

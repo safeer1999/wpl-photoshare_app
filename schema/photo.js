@@ -24,6 +24,8 @@ const photoSchema = new mongoose.Schema({
   date_time: { type: Date, default: Date.now },
   // The ID of the user who created the photo.
   user_id: mongoose.Schema.Types.ObjectId,
+  // If this photo belongs to favorites or not. Yes if value is 1 else No.
+  favorite: Number,
   // Array of comment objects representing the comments made on this photo.
   comments: [commentSchema],
 });
