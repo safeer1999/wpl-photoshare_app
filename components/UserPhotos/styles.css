@@ -26,3 +26,35 @@
     align-content: center;
     justify-content: center;
 }
+
+/* General styling for delete buttons */
+.delete-button {
+    background-color: transparent; /* Transparent background */
+    color: #ff4d4f; /* Icon color */
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+  }
+  
+  /* Hover effect for both buttons */
+  .delete-button:hover {
+    color: #ff7875; /* Lighter red */
+  }
+  
+  .delete-button:focus {
+    outline: none;
+    box-shadow: 0 0 3px #ff4d4f;
+  }
+  
+  /* Larger icon for photo delete button */
+  .delete-photo-button {
+    font-size: 24px; /* Larger size for photo delete */
+  }
+  
+  /* Smaller icon for comment delete button */
+  .delete-comment-button {
+    font-size: 18px; /* Smaller size for comment delete */
+  }
