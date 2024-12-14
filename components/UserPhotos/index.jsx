@@ -120,6 +120,8 @@ function AddComment({handleSetComments,photoId}) {
 
 function Comment({ comment, photoId, handleCommentDelete }) {
 
+  const [currentUser] = useContext(UserLoggedIn); 
+  
   if (comment===null) {
     return "";
   }
@@ -168,8 +170,10 @@ function Comment({ comment, photoId, handleCommentDelete }) {
             &nbsp;commented on&nbsp;
             {formatDateTime(comment.date_time)}
           </p>
+          {currentUser._id === comment.user._id && (
           <button className="delete-button delete-comment-button" onClick={handleDeleteClick}><DeleteIcon /></button>
-        </div>
+          )}
+          </div>
 
       </ListItem>
       <Divider />
@@ -178,6 +182,9 @@ function Comment({ comment, photoId, handleCommentDelete }) {
 }
 
 function PhotoDescription({photo, handlePhotoDelete}) {
+
+
+  const [currentUser] = useContext(UserLoggedIn); 
 
   // const comments = photo.comments;
   const [comments, setComments] = useState(photo.comments);
@@ -277,7 +284,9 @@ function PhotoDescription({photo, handlePhotoDelete}) {
         <Typography variant="body1">
             Uploaded on {formatDateTime(photo.date_time)}
         </Typography>
+        {currentUser._id === photo.user_id && (
         <button className="delete-button delete-photo-button" onClick={handleDeletePhoto}><DeleteIcon /></button>
+      )}
       </div>
       <div className="photo-details">
         <List>
