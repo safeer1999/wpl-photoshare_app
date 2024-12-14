@@ -236,9 +236,11 @@ app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
   console.log("Logged in user",req.session.user);
 
   const commentedUser = await User.findById(req.session.user.user_id);
+
+  const commentId = new mongoose.Types.ObjectId();
   
   const newComment = {
-    _id : new mongoose.Types.ObjectId(),
+    _id : commentId,
     user_id : req.session.user.user_id,
     date_time : Date(),
     comment : req.body.comment,
@@ -246,7 +248,7 @@ app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
   };
 
   const resNewComment = {
-    _id : new mongoose.Types.ObjectId(),
+    _id : commentId,
     user : commentedUser,
     date_time : Date(req.body.timestamp),
     comment : req.body.comment,
@@ -515,6 +517,109 @@ app.get("/photos", async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 });
+
+// DELETE a photo owned by the user
+app.delete('/photos/:photo_id', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not authenticated");
+  }
+
+  const photoId = req.params.photo_id;
+
+  try {
+    const photo = await Photo.findById(photoId);
+    if (!photo) {
+      return res.status(404).send("Photo not found");
+    }
+
+    // Check if the user owns the photo
+    if (!photo.user_id.equals(req.session.user.user_id)) {
+      return res.status(403).send("User does not own this photo");
+    }
+
+    // Delete the photo
+    await Photo.deleteOne({ _id: photoId });
+    res.status(200).send("Photo deleted successfully");
+  } catch (error) {
+    console.error("Error deleting photo:", error);
+    res.status(500).send("Error deleting photo");
+  }
+});
+
+// DELETE a comment made by the user
+app.delete('/comments/:comment_id', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not authenticated");
+  }
+
+  const commentId = req.params.comment_id;
+
+  try {
+    // Find the photo containing the comment
+    const photo = await Photo.findOne({ "comments._id": commentId });
+
+    if (!photo) {
+      return res.status(404).send("Comment not found");
+    }
+
+    // Find the comment in the photo
+    const comment = photo.comments.id(commentId);
+
+    // Check if the user owns the comment
+    if (!comment.user_id.equals(req.session.user.user_id)) {
+      return res.status(403).send("User does not own this comment");
+    }
+
+    // Use $pull to remove the comment from the database
+    await Photo.updateOne(
+      { _id: photo._id },
+      { $pull: { comments: { _id: commentId } } }
+    );
+
+    res.status(200).send("Comment deleted successfully");
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).send("Error deleting comment");
+  }
+});
+
+
+// DELETE a user account, including their photos and comments
+app.delete('/user/:user_id', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).send("User not authenticated");
+  }
+
+  const userId = req.params.user_id;
+
+  // Check if the user is deleting their own account
+  if (!userId === req.session.user.user_id) {
+    return res.status(403).send("User can only delete their own account");
+  }
+
+  try {
+    // Delete all photos owned by the user
+    await Photo.deleteMany({ user_id: userId });
+
+    // Delete all comments made by the user in photos
+    await Photo.updateMany(
+      { "comments.user_id": userId },
+      { $pull: { comments: { user_id: userId } } }
+    );
+
+    // Delete the user account
+    await User.deleteOne({ _id: userId });
+
+    // Log the user out
+    req.session.user = null;
+
+    res.status(200).send("User account deleted successfully");
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    res.status(500).send("Error deleting user account");
+  }
+});
+
 
 const server = app.listen(3000, function () {
   const port = server.address().port;

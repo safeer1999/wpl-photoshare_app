@@ -38,6 +38,69 @@ function TopBar({handleSetFetchPhoto}) {
     setWelcomeMessage("");
   }
 
+  async function handleDeleteUser() {
+
+    if (!currentUser || !currentUser._id) {
+
+      alert("No user logged in to delete.");
+
+      return;
+
+    }
+
+
+
+    const confirmDelete = window.confirm(
+
+      "Are you sure you want to delete your account? This action cannot be undone."
+
+    );
+
+    if (!confirmDelete) {
+
+      return;
+
+    }
+
+
+
+    try {
+
+      const response = await fetch(`/user/${currentUser._id}`, {
+
+        method: 'DELETE',
+
+      });
+
+
+
+      if (response.ok) {
+
+        alert("User account deleted successfully.");
+
+        navigate("/");
+        setCurrentUser({});
+        setLogoutButton(null);
+        setWelcomeMessage("");
+
+      } else {
+
+        const error_message = await response.text();
+
+        alert(`Failed to delete user account: ${error_message}`);
+
+      }
+
+    } catch (error) {
+
+      console.error("Error deleting user account:", error);
+
+      alert("An error occurred while deleting the account.");
+
+    }
+
+  }
+
   const handleUploadButtonClicked = async (e) => {
     e.preventDefault();
     if (uploadInputRef.current.files.length > 0) {
@@ -159,6 +222,9 @@ function TopBar({handleSetFetchPhoto}) {
                     {uploadStatus}
                   </Typography>
                 )}
+                <Button variant="contained" color="error" onClick={handleDeleteUser}>
+                  Delete Account
+                  </Button>
               </>
             )}
             {logoutButton}
