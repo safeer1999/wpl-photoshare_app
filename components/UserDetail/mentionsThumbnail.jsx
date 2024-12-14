@@ -71,19 +71,22 @@ function MentionsThumbnails({ photoIds }) {
   useEffect(() => {
 
     if (photos.length===0) {
-      setMentionsList(<Typography>Nobody mentioned you yet!</Typography>);
+      setMentionsList(<Typography>No mentions yet!</Typography>);
     }
     else {
       setMentionsList(
         photos.map((photo) => (
           <div key={photo._id} className="mention-thumbnail">
-            <Link className='image-link' to={`/photos/:${photo.user_id}#${photo._id}`}>
-                <img
-                src={`/images/${photo.file_name}`}
-                alt="Mentioned"
-                />
-            </Link>
+            <Typography>
             <UserLink userId={photo.user_id} />
+              {' '}mentioned you at:{' '}
+              <Link className='image-link' to={`/photos/:${photo.user_id}#${photo._id}`}>
+                  <img
+                  src={`/images/${photo.file_name}`}
+                  alt="Mentioned"
+                  />
+              </Link>
+            </Typography>
           </div>
         ))
       );
