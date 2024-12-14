@@ -69,7 +69,7 @@ function PhotoShare() {
                   <Route path="/users/:userId" element={<UserDetailRoute />} />
                   <Route path="/photos/:userId" element={<UserPhotosRoute fetchPhoto={fetchPhoto} handleSetFetchPhoto={handleSetFetchPhoto} />} />
                   <Route path="/users" element={<UserList />} />
-                  <Route path="/favourites" element={<FavouritePhotos fetchPhoto={fetchPhoto} handleSetFetchPhoto={handleSetFetchPhoto} />} />
+                  <Route path="/favourites" element={<FavouritePhotos />} />
                 </Routes>    
             </Paper>
           </Grid>

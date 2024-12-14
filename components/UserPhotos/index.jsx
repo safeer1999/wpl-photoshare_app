@@ -11,8 +11,6 @@ ListItem,
 Divider,
 Link,
 Paper, 
-Checkbox,
-FormControlLabel,
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -143,7 +141,7 @@ function AddComment({handleSetComments,photoId}) {
         value={comment}
         onChange={handleInputChange}
       /> */}
-      <MentionsInput value={comment} onChange={handleInputChange} placeholder='Add a comment...'>
+      <MentionsInput className='mentions-input-text' value={comment} onChange={handleInputChange} placeholder='Add a comment...'>
         <Mention
           trigger="@"
           data={userList}
@@ -155,7 +153,7 @@ function AddComment({handleSetComments,photoId}) {
   );
 }
 
-function Comment({ comment, photoId, handleCommentDelete }) {
+function Comment({ comment, handleCommentDelete }) {
 
   const [currentUser] = useContext(UserLoggedIn); 
   
@@ -325,8 +323,6 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
 
           comment={comment}
 
-          photoId={photo._id}
-
           handleCommentDelete={handleCommentDelete}
 
         />
@@ -447,5 +443,22 @@ UserPhotos.propTypes = {
   fetchPhoto: PropTypes.any,
   handleSetFetchPhoto: PropTypes.any,
 };
+
+Comment.propTypes = {
+  comment: PropTypes.object.isRequired, // Comment object is required
+  handleCommentDelete: PropTypes.func.isRequired, // Must be a function and required
+};
+
+PhotoDescription.propTypes = {
+  photo: PropTypes.object.isRequired, // Photo object is required
+  checkLoggedIn: PropTypes.bool.isRequired, // Must be a boolean and required
+  handlePhotoDelete: PropTypes.func.isRequired, // Must be a function and required
+};
+
+AddComment.propTypes = {
+  photoId: PropTypes.string.isRequired, // Must be a string and required
+  handleSetComments: PropTypes.func.isRequired, // Must be a function and required
+};
+
 
 export default UserPhotos;

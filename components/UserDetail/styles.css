@@ -2,6 +2,10 @@
     background-color: rgb(205, 200, 195);
 }
 
+.mentions-overall {
+  margin-top: 30px;
+}
+
 /* Container for the thumbnails */
 .mentions-container {
     display: flex;

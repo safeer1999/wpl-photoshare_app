@@ -165,21 +165,27 @@
  * discarded.
  */
 
-function biasedRandom() {
-  return Math.random() < 0.4 ? 1 : 0;
-}
-
 // We use Mongoose to define the schema stored in MongoDB.
-import mongoose from "mongoose";
-import bluebird from "bluebird";
-import { makePasswordEntry } from "./password.js";
-// Get the magic models we used in the previous projects.
-import { models } from "./modelData/photoApp.js";
+// import mongoose from "mongoose";
+// import bluebird from "bluebird";
+// import { makePasswordEntry } from "./password.js";
+// // Get the magic models we used in the previous projects.
+// import { models } from "./modelData/photoApp.js";
 
-// Load the Mongoose schema for User and Photo
-import User from "./schema/user.js";
-import Photo from "./schema/photo.js";
-import SchemaInfo from "./schema/schemaInfo.js";
+// // Load the Mongoose schema for User and Photo
+// import User from "./schema/user.js";
+// import Photo from "./schema/photo.js";
+// import SchemaInfo from "./schema/schemaInfo.js";
+
+const mongoose = require("mongoose");
+const bluebird = require("bluebird");
+const { makePasswordEntry } = require("./password.js");
+const { models } = require("./modelData/photoApp.js");
+
+const User = require("./schema/user.js");
+const Photo = require("./schema/photo.js");
+const SchemaInfo = require("./schema/schemaInfo.js");
+
 
 const versionString = "1.0";
 

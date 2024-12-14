@@ -30,8 +30,47 @@
   }
 
   
-  /* Individual buttons */
-  .favourite-button {
-    margin: 5px;
-  }
+/* Thumbnail List Container */
+.thumbnail-list {
+  display: flex;
+  flex-wrap: wrap; /* Allows thumbnails to wrap to the next row if there's no space */
+  gap: 16px; /* Adds spacing between thumbnails */
+  justify-content: center; /* Center-align thumbnails */
+  padding: 20px; /* Adds padding around the entire grid */
+}
+
+/* Thumbnail Container */
+.thumbnail-container {
+  position: relative; /* Required for positioning delete button */
+  width: 150px; /* Fixed width for thumbnails */
+  height: 150px; /* Fixed height for thumbnails */
+  overflow: hidden; /* Ensures content doesn't spill outside */
+  border-radius: 8px; /* Adds rounded corners to thumbnails */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for a polished look */
+  transition: transform 0.2s ease-in-out; /* Adds hover effect */
+}
+
+.thumbnail-container:hover {
+  transform: scale(1.05); /* Slightly enlarges the thumbnail on hover */
+}
+
+/* Thumbnail Image */
+.thumbnail-container img {
+  width: 80%; 
+  height: 80%;
+  object-fit: cover; /* Crops the image to fit the container without distortion */
+  border-radius: 8px; /* Matches the container's rounded corners */
+}
+
+/* Delete Button */
+.favorite-delete-button {
+  position: absolute; /* Position relative to the container */
+  top: 8px; /* Offset from the top */
+  right: 8px; /* Offset from the right */
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  border-radius: 50%; /* Circular button */
+  padding: 4px; /* Adds padding inside the button */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+  transition: background-color 0.2s ease;
+}
   

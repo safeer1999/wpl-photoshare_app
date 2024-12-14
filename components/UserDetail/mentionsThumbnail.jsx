@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Typography } from '@mui/material';
 
+import PropTypes from 'prop-types';
+
 function UserLink({ userId }) {
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
@@ -95,8 +97,8 @@ function MentionsThumbnails({ photoIds }) {
 
 
   return (
-    <div>
-      <Typography variant='h6'>Mentions</Typography>
+    <div className='mentions-overall'>
+      <Typography className='mentions-heading' variant='h6'>Mentions</Typography>
       {error && <p className="error-message">{error}</p>}
       <div className="mentions-container">
         {mentionsList}
@@ -104,5 +106,17 @@ function MentionsThumbnails({ photoIds }) {
     </div>
   );
 }
+
+UserLink.propTypes = {
+  userId: PropTypes.string.isRequired, // userId must be a non-empty string and is required
+};
+
+MentionsThumbnails.propTypes = {
+  photoIds: PropTypes.arrayOf(PropTypes.string).isRequired, // photoIds must be an array of strings
+};
+
+MentionsThumbnails.defaultProps = {
+  photoIds: [], // Default empty array for photoIds if not provided
+};
 
 export default MentionsThumbnails;

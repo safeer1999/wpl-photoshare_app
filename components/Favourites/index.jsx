@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Modal, Box, Button, Typography, IconButton } from '@mui/material';
+import { Modal, Box, Typography, IconButton } from '@mui/material';
 // import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
@@ -33,7 +33,7 @@ function formatDateTime(dateString) {
 }
 
 
-const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
+const FavouritePhotos = () => {
   const [currentUser, ] = useContext(UserLoggedIn);
 
   const [open, setOpen] = useState(false);
@@ -53,12 +53,12 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
     .then((res) => {
       console.log(`Favorite photos of fetched from server\n`, res.data);
       setPhotos(res.data);
-      handleSetFetchPhoto(false);
+      // handleSetFetchPhoto(false);
     })
     .catch((error) => {
       console.log(error);
     });
-  }, [fetchPhoto]);
+  }, []);
   
   const handleOpen = (photo) => {
     setSelectedPhoto(photo);
@@ -97,13 +97,13 @@ const FavouritePhotos = ({fetchPhoto,handleSetFetchPhoto}) => {
       </Typography>
       <div className="thumbnail-list">
         {photos.map((photo) => (
-          <div className='thumbnail-container'>
+          <div className='thumbnail-container' key={photo._id}>
             <img
             src={`/images/${photo.file_name}`}
             alt="Mentioned"
             onClick={() => handleOpen(photo)}
             />
-            <IconButton className='favorite-delete-button' onClick={() => removeFavorites(photo._id)}>
+            <IconButton key={photo._id} className='favorite-delete-button' onClick={() => removeFavorites(photo._id)}>
               <DeleteIcon />
             </IconButton>
           </div>

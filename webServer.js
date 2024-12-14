@@ -31,19 +31,34 @@
  *                      (JSON format).
  */
 
-import session from "express-session";
-import bodyParser from "body-parser";
-import multer from "multer";
-import fs from "fs";
-import mongoose from "mongoose";
-import express from "express";
-import bluebird from "bluebird";
+// import session from "express-session";
+// import bodyParser from "body-parser";
+// import multer from "multer";
+// import fs from "fs";
+// import mongoose from "mongoose";
+// import express from "express";
+// import bluebird from "bluebird";
 
-import User from "./schema/user.js";
-import Photo from "./schema/photo.js";
-import SchemaInfo from "./schema/schemaInfo.js";
+// import User from "./schema/user.js";
+// import Photo from "./schema/photo.js";
+// import SchemaInfo from "./schema/schemaInfo.js";
 
-import { makePasswordEntry, doesPasswordMatch } from "./password.js";
+// import { makePasswordEntry, doesPasswordMatch } from "./password.js";
+
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const fs = require("fs");
+const mongoose = require("mongoose");
+const express = require("express");
+const bluebird = require("bluebird");
+const process = require('process');
+
+const User = require("./schema/user.js");
+const Photo = require("./schema/photo.js");
+const SchemaInfo = require("./schema/schemaInfo.js");
+
+const { makePasswordEntry, doesPasswordMatch } = require("./password.js");
 
 const app = express();
 

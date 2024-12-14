@@ -14,6 +14,11 @@
     right: 0;
 }
 
+/* Individual buttons */
+.favourite-button {
+  margin: 5px;
+}
+
 .text-align-right {
     text-align: right;
 }
@@ -57,4 +62,8 @@
   /* Smaller icon for comment delete button */
   .delete-comment-button {
     font-size: 18px; /* Smaller size for comment delete */
+  }
+
+  .mentions-input-text {
+    width: 250px;
   }
