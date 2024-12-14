@@ -20,6 +20,7 @@ import MentionsThumbnails from './mentionsThumbnail';
 function UserDetail({userId}) {
   const [currentUser, ] = useContext(UserLoggedIn);
   const [user, setUser] = useState({});
+  const [favoritesButton, setFavoritesButton] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +34,24 @@ function UserDetail({userId}) {
     .then((res) => {
       console.log(`User details of ${userId} fetched from server\n`, res.data);
       setUser(res.data);
+      console.log("why are the ids not matching?",userId, currentUser._id);
+      if (userId.slice(1) === currentUser._id) {
+        setFavoritesButton(
+          <div>
+            <Link 
+              href="#/favourites/"
+              variant='body1'
+              underline="none"
+              color="inherit"
+              className="switch-to-photos-link" >
+                Switch to Favorites
+            </Link>
+          </div>
+        );
+      }
+      else {
+        setFavoritesButton(null);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -72,16 +91,7 @@ function UserDetail({userId}) {
             Switch to Photos
         </Link>
       </div>
-      <div>
-      <Link 
-          href="#/favourites/"
-          variant='body1'
-          underline="none"
-          color="inherit"
-          className="switch-to-photos-link" >
-            Switch to Favorites
-        </Link>
-      </div>
+      {favoritesButton}
     </>
   );
 }
