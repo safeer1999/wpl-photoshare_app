@@ -20,7 +20,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { MentionsInput, Mention } from 'react-mentions';
 
 import UserLoggedIn from '../../photoShare';
-import MentionComment from './mention_comments';
 import "./styles.css";
 
 import PropTypes from 'prop-types';
@@ -68,6 +67,8 @@ function extractMentions(comment) {
 
 
 function AddComment({handleSetComments,photoId}) {
+  const [currentUser, ] = useContext(UserLoggedIn);
+  
   // State to hold the input value
   const [comment, setComment] = useState('');
   const [userList, setUserList] = useState([]);
@@ -126,7 +127,8 @@ function AddComment({handleSetComments,photoId}) {
           id: x._id,
           display: x.first_name + ' ' + x.last_name,
         }
-      }));
+      })
+      .filter((u) => u.id!==currentUser._id));
     })
     .catch((error) => {
       console.log(error);
@@ -234,8 +236,6 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
   };
 
   useEffect(() => {
-
-    console.log("This is inside favorite button",isFavorite)
     
     if (checkLoggedIn) {
       setMarkFavorite(

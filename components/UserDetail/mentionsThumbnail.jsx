@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Typography } from '@mui/material';
 
 function UserLink({ userId }) {
     const [user, setUser] = useState(null);
@@ -41,6 +42,7 @@ function UserLink({ userId }) {
 function MentionsThumbnails({ photoIds }) {
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState(null);
+  const [mentionsList, setMentionsList] = useState(null);
 
   useEffect(() => {
     // Function to fetch photos from the server
@@ -66,13 +68,14 @@ function MentionsThumbnails({ photoIds }) {
 
   }, [photoIds]);
 
+  useEffect(() => {
 
-  return (
-    <div>
-      <h3>Mentions</h3>
-      {error && <p className="error-message">{error}</p>}
-      <div className="mentions-container">
-        {photos.map((photo) => (
+    if (photos.length===0) {
+      setMentionsList(<Typography>Nobody mentioned you yet!</Typography>);
+    }
+    else {
+      setMentionsList(
+        photos.map((photo) => (
           <div key={photo._id} className="mention-thumbnail">
             <Link className='image-link' to={`/photos/:${photo.user_id}#${photo._id}`}>
                 <img
@@ -82,7 +85,18 @@ function MentionsThumbnails({ photoIds }) {
             </Link>
             <UserLink userId={photo.user_id} />
           </div>
-        ))}
+        ))
+      );
+    }
+  },[photos]);
+
+
+  return (
+    <div>
+      <Typography variant='h6'>Mentions</Typography>
+      {error && <p className="error-message">{error}</p>}
+      <div className="mentions-container">
+        {mentionsList}
       </div>
     </div>
   );
