@@ -224,7 +224,7 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
   // const comments = photo.comments;
   const [comments, setComments] = useState(photo.comments);
   const [markFavorite, setMarkFavorite] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(photo.favorite === 1);
+  const [isFavorite, setIsFavorite] = useState(photo.favorite.includes(currentUser._id));
 
   async function handleFavoriteToggle() {
     if (isFavorite) {return;}
@@ -242,7 +242,7 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
 
   useEffect(() => {
     
-    if (checkLoggedIn) {
+    if (true) {
       setMarkFavorite(
         <div>
           {/* <FormControlLabel

@@ -308,23 +308,34 @@ app.post('/mentionsOfPhoto/', async (req, res) => {
 app.post("/photoFavorites/:photo_id", async (req, res) => {
   const { photo_id } = req.params;
   const { favorite } = req.body; // Retrieve the 'favorite' value from the request body
-
+  
   if (!req.session.user) {
     res.status(400).send("Not Logged In");
     return;
   }
+  const {user_id} = req.session.user;
 
   if (typeof favorite !== "number" || (favorite !== 0 && favorite !== 1)) {
     return res.status(400).json({ message: "Invalid favorite value. Must be 0 or 1." });
   }
 
   try {
+
+    let update;
+
+    if (favorite === 1) {
+      // Add the user_id to the 'favorite' array
+      update = { $addToSet: { favorite: user_id } }; // Ensures no duplicates
+    } else if (favorite === 0) {
+      // Remove the user_id from the 'favorite' array
+      update = { $pull: { favorite: user_id } };
+    } else {
+      throw new Error("Invalid favorite value. Must be 0 or 1.");
+    }
+
     // Find the photo by ID and update its 'favorite' attribute
-    const photo = await Photo.findByIdAndUpdate(
-      photo_id,
-      { favorite },
-      { new: true } // Return the updated document
-    );
+    const photo = await Photo.findByIdAndUpdate(photo_id, update, { new: true });
+
 
     if (!photo) {
       return res.status(404).json({ message: "Photo not found." });
@@ -480,7 +491,7 @@ app.get("/favoritePhotos/", async function (request, response) {
   }
 
   try {
-    const photos = await Photo.find({user_id: request.session.user.user_id,favorite:1})
+    const photos = await Photo.find({favorite: request.session.user.user_id})
     .select('_id user_id file_name date_time');
 
     if (photos.length === 0) {
