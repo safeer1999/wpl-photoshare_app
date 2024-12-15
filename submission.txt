@@ -1,0 +1,33 @@
+Project 8 - Submission Form
+
+* Story number and name:  2 - @mentions in comments
+* Story points:  6
+* Brief description to see the story in action:
+* When adding a comment type @ followed by the name of the user to add a mention. 
+* Each user's list of mentions is displayed on their page with links to the photos
+* and the users whose photos the mentions were made on.
+*
+* Story number and name:  5 - Deleting comments, photos, and users
+* Story points:  4
+* Brief description to see the story in action:
+* Click on the delete button below the current user comments and current user
+* photos respectively to delete them. Click on the delete account button to delete
+* the current user along with all their photos and comments.
+*
+* Story number and name:  7 - Favorite lists of photos for users
+* Story points:  6
+* Brief description to see the story in action:
+* Click on the favorite (star) button on the top right of each photo to add it to
+* favorites. Click on "Switch to Favorites" to view favorite photos.
+* 
+* Total Story Points: 16
+* 
+* Marketing Video URL (ensure permissions are set to public viewing):
+* https://youtu.be/DVfYe6FzCxA
+* 
+* Is it OK if we post your Marketing Video URL on the class discussion forum?
+* Yes
+* 
+* Any special instructions for grading (it should be easy for someone to run
+* your app from a new machine):
+* None
