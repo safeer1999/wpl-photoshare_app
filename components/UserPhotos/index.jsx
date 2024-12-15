@@ -242,7 +242,6 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
 
   useEffect(() => {
     
-    if (true) {
       setMarkFavorite(
         <div>
           {/* <FormControlLabel
@@ -259,10 +258,6 @@ function PhotoDescription({photo, checkLoggedIn, handlePhotoDelete}) {
           </IconButton>
         </div>
       )
-    }
-    else {
-      setMarkFavorite(null);
-    }
   }, [checkLoggedIn,isFavorite]);
 
   function handleSetComments(data) {
