@@ -2,6 +2,11 @@
 
 const mongoose = require("mongoose");
 
+const mentionSchema = new mongoose.Schema({
+  mentionedUser: mongoose.Schema.Types.ObjectId,
+  photoId: mongoose.Schema.Types.ObjectId,
+});
+
 /**
  * Define the Mongoose Schema for a Comment.
  */
@@ -12,6 +17,8 @@ const commentSchema = new mongoose.Schema({
   date_time: { type: Date, default: Date.now },
   // The ID of the user who created the comment.
   user_id: mongoose.Schema.Types.ObjectId,
+  // The users mentions in the comment
+  mentions: [mentionSchema],
 });
 
 /**

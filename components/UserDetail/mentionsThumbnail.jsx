@@ -41,7 +41,7 @@ function UserLink({ userId }) {
     );
   }
 
-function MentionsThumbnails({ photoIds }) {
+function MentionsThumbnails({ mentionIds }) {
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState(null);
   const [mentionsList, setMentionsList] = useState(null);
@@ -50,8 +50,8 @@ function MentionsThumbnails({ photoIds }) {
     // Function to fetch photos from the server
     const fetchPhotos = async () => {
       try {
-        const response = await axios.get('/photos/', {
-          params: {photoIds},
+        const response = await axios.get('/mentions/', {
+          params: {mentionIds},
         });
 
         setPhotos(response.data);
@@ -61,14 +61,14 @@ function MentionsThumbnails({ photoIds }) {
       }
     };
 
-    if (photoIds && photoIds.length > 0) {
+    if (mentionIds && mentionIds.length > 0) {
       fetchPhotos();
     }
     else {
         setPhotos([]);
     }
 
-  }, [photoIds]);
+  }, [mentionIds]);
 
   useEffect(() => {
 
@@ -80,7 +80,7 @@ function MentionsThumbnails({ photoIds }) {
         photos.map((photo) => (
           <div key={photo._id} className="mention-thumbnail">
             <Typography>
-              You were mentioned at:{' '}
+              Mentioned at:{' '}
               <UserLink userId={photo.user_id} />
               &apos;s photo:{' '}
               <Link className='image-link' to={`/photos/:${photo.user_id}#${photo._id}`}>
@@ -113,11 +113,11 @@ UserLink.propTypes = {
 };
 
 MentionsThumbnails.propTypes = {
-  photoIds: PropTypes.arrayOf(PropTypes.string).isRequired, // photoIds must be an array of strings
+  mentionIds: PropTypes.arrayOf(PropTypes.string).isRequired, // photoIds must be an array of strings
 };
 
 MentionsThumbnails.defaultProps = {
-  photoIds: [], // Default empty array for photoIds if not provided
+  mentionIds: [], // Default empty array for photoIds if not provided
 };
 
 export default MentionsThumbnails;

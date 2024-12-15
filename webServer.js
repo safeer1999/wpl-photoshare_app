@@ -231,6 +231,47 @@ app.post('/photos/new', (req, res) => {
   });
 });
 
+async function processMentions(commentId) {
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    throw new Error("Invalid commentId.");
+  }
+
+  try {
+    // Step 1: Find the comment and retrieve all mentions
+    const photo = await Photo.findOne({ "comments._id": commentId }, { "comments.$": 1 });
+    if (!photo) {
+      throw new Error("Photo with the specified commentId not found.");
+    }
+
+    const comment = photo.comments[0];
+    if (!comment || !comment.mentions) {
+      console.log("No mentions found in the comment.");
+      return;
+    }
+
+    // Extract mentionedUser IDs and mention._ids
+    const mentions = comment.mentions.map((mention) => ({
+      mentionedUser: mention.mentionedUser,
+      mentionId: mention._id,
+    }));
+
+    // Step 2: Push each mention._id into User.mentions for the corresponding mentionedUser
+    const updatePromises = mentions.map(({ mentionedUser, mentionId }) =>
+      User.findByIdAndUpdate(
+        mentionedUser,
+        { $push: { mentions: mentionId } }, // Push mention._id into User.mentions
+        { new: true } // Return the updated document
+      )
+    );
+
+    const updatedUsers = await Promise.all(updatePromises);
+    console.log("Updated Users:", updatedUsers);
+  } catch (error) {
+    console.error("Error processing mentions:", error);
+    throw error;
+  }
+}
+
 app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
 
   if (!req.session.user) {
@@ -259,7 +300,7 @@ app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
     user_id : req.session.user.user_id,
     date_time : Date(),
     comment : req.body.comment,
-
+    mentions : req.body.mentions,
   };
 
   const resNewComment = {
@@ -276,6 +317,8 @@ app.post('/commentsOfPhoto/:photo_id', async (req, res) => {
   
   
   // const updatedComments = await Photo.findById(photoId.slice(1),{comments: 1});
+
+  processMentions(commentId);
   
   res.status(200).json(resNewComment);
 
@@ -544,6 +587,49 @@ app.get("/photos", async (req, res) => {
   }
 });
 
+app.get("/mentions/", async (req, res) => {
+  if (!req.session.user) {
+    res.status(401).send("Not Logged In");
+    return;
+  }
+  
+  const { mentionIds } = req.query;
+
+  if (!mentionIds || !Array.isArray(mentionIds)) {
+    return res.status(400).json({ message: "mentionIds parameter must be a list of IDs." });
+  }
+
+  try {
+    // Validate and convert mentionIds to ObjectId
+    const validMentionIds = mentionIds
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+
+      console.log("Checking for valid mentions ids", validMentionIds);
+
+    if (validMentionIds.length === 0) {
+      return res.status(400).json({ message: "No valid mention IDs provided." });
+    }
+
+    // Find photos where comments.mentions contains any of the mentionIds, excluding 'comments'
+    const photos = await Photo.find(
+      { "comments.mentions._id": { $in: validMentionIds } },
+      { comments: 0 } // Exclude the 'comments' attribute
+    );
+
+    if (!photos || photos.length === 0) {
+      return res.status(404).json({ message: "No photos found for the given mention IDs." });
+    }
+
+    console.log("How many photos were found", photos);
+
+    res.status(200).json(photos);
+  } catch (error) {
+    console.error("Error retrieving photos by mentions:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // DELETE a photo owned by the user
 app.delete('/photos/:photo_id', async (req, res) => {
   if (!req.session.user) {
@@ -572,6 +658,47 @@ app.delete('/photos/:photo_id', async (req, res) => {
   }
 });
 
+async function deleteMentionsFromComment(commentId) {
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    throw new Error("Invalid commentId.");
+  }
+
+  try {
+    // Step 1: Find the comment and retrieve all mentions
+    const photo = await Photo.findOne({ "comments._id": commentId }, { "comments.$": 1 });
+    if (!photo) {
+      throw new Error("Photo with the specified commentId not found.");
+    }
+
+    const comment = photo.comments[0];
+    if (!comment || !comment.mentions) {
+      console.log("No mentions found in the comment.");
+      return;
+    }
+
+    // Extract all mention._ids and mentionedUser IDs
+    const mentions = comment.mentions.map((mention) => ({
+      mentionedUser: mention.mentionedUser,
+      mentionId: mention._id,
+    }));
+
+    // Step 2: Remove all mention._ids from User.mentions
+    const updatePromises = mentions.map(({ mentionedUser, mentionId }) =>
+      User.findByIdAndUpdate(
+        mentionedUser,
+        { $pull: { mentions: mentionId } }, // Remove mention._id from User.mentions
+        { new: true } // Return the updated document
+      )
+    );
+
+    const updatedUsers = await Promise.all(updatePromises);
+    console.log("Updated Users after deletion:", updatedUsers);
+  } catch (error) {
+    console.error("Error deleting mentions:", error);
+    throw error;
+  }
+}
+
 // DELETE a comment made by the user
 app.delete('/comments/:comment_id', async (req, res) => {
   if (!req.session.user) {
@@ -579,6 +706,8 @@ app.delete('/comments/:comment_id', async (req, res) => {
   }
 
   const commentId = req.params.comment_id;
+
+  deleteMentionsFromComment(commentId);
 
   try {
     // Find the photo containing the comment

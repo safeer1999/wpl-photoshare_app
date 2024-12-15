@@ -83,25 +83,30 @@ function AddComment({handleSetComments,photoId}) {
     const timestamp = new Date();
     
     let [processedComment,mentionedIds] = extractMentions(comment);
+    const mentions = mentionedIds.map((u) => {return {mentionedUser: u, photoId: photoId}});
 
     const response = await fetch('/commentsOfPhoto/:'+photoId, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ comment:processedComment, timestamp:timestamp }),
+      body: JSON.stringify({ 
+        comment:processedComment,
+        timestamp:timestamp,
+        mentions: mentions, }),
     });
 
     
-    const mention_reponse = await fetch('/mentionsOfPhoto/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({photo_id: photoId,user_ids: mentionedIds})
-    });
+    // const mention_reponse = await fetch('/mentionsOfPhoto/', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({photo_id: photoId,user_ids: mentionedIds})
+    // });
 
-    if (response.ok && mention_reponse.ok) {
+    // if (response.ok && mention_reponse.ok) {
+    if (response.ok) {
       console.log("added comment successfully");
       const updatedCommentsJSON = await response.json();
       handleSetComments(updatedCommentsJSON);

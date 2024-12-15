@@ -76,7 +76,7 @@ function UserDetail({userId}) {
           Occupation: {user.occupation}
           </Typography>
 
-          <MentionsThumbnails photoIds={user.mentions} />
+          <MentionsThumbnails mentionIds={user.mentions} />
       </div>
       <Divider />
       <br />
