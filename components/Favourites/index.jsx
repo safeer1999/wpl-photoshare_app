@@ -93,7 +93,7 @@ const FavouritePhotos = () => {
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        Favourite Photos
+        Favorite Photos
       </Typography>
       <div className="thumbnail-list">
         {photos.map((photo) => (
